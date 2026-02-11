@@ -1,1 +1,199 @@
-<p>job-list works!</p>
+<div class="container py-4">
+  <!-- En-tête -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h2 fw-bold text-primary">
+          <i class="bi bi-search me-2"></i>Recherche d'Emplois
+        </h1>
+        @if (isAuthenticated) {
+          <span class="badge bg-success">
+            <i class="bi bi-person-check me-1"></i>Connecté
+          </span>
+        }
+      </div>
+      <p class="text-muted">Trouvez l'emploi de vos rêves parmi des milliers d'offres internationales</p>
+    </div>
+  </div>
+
+  <!-- Formulaire de recherche -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-body">
+      <form (ngSubmit)="onSearch()" #searchForm="ngForm">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="keywords" class="form-label fw-semibold">
+              <i class="bi bi-search me-1"></i>Mots-clés
+            </label>
+            <input type="text"
+                   class="form-control"
+                   id="keywords"
+                   [(ngModel)]="filters.keywords"
+                   name="keywords"
+                   placeholder="Ex: Développeur Angular, Chef de projet..."
+                   required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="location" class="form-label fw-semibold">
+              <i class="bi bi-geo-alt me-1"></i>Localisation
+            </label>
+            <input type="text"
+                   class="form-control"
+                   id="location"
+                   [(ngModel)]="filters.location"
+                   name="location"
+                   placeholder="Ex: Casablanca, France, Remote...">
+          </div>
+
+          <div class="col-md-3">
+            <label for="type" class="form-label fw-semibold">
+              <i class="bi bi-clock me-1"></i>Type de contrat
+            </label>
+            <select class="form-select" id="type" [(ngModel)]="filters.type" name="type">
+              <option value="">Tous types</option>
+              @for (type of jobTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="experience" class="form-label fw-semibold">
+              <i class="bi bi-graph-up me-1"></i>Expérience
+            </label>
+            <select class="form-select" id="experience" [(ngModel)]="filters.experience" name="experience">
+              <option value="">Tous niveaux</option>
+              @for (level of experienceLevels; track level) {
+                <option [value]="level">{{ level }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="salaryMin" class="form-label fw-semibold">
+              <i class="bi bi-cash me-1"></i>Salaire min
+            </label>
+            <input type="number"
+                   class="form-control"
+                   id="salaryMin"
+                   [(ngModel)]="filters.salaryMin"
+                   name="salaryMin"
+                   placeholder="Ex: 30000">
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-check mt-4 pt-2">
+              <input class="form-check-input"
+                     type="checkbox"
+                     id="remote"
+                     [(ngModel)]="filters.remote"
+                     name="remote">
+              <label class="form-check-label fw-semibold" for="remote">
+                <i class="bi bi-laptop me-1"></i>Télétravail
+              </label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="loading || !filters.keywords">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                }
+                <i class="bi bi-search me-1"></i>Rechercher
+              </button>
+              <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">
+                <i class="bi bi-x-circle me-1"></i>Réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Résultats -->
+  <div class="row">
+    <div class="col-12">
+      @if (loading) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p class="text-muted">Recherche en cours...</p>
+        </div>
+      } @else if (jobs.length === 0) {
+        <div class="text-center py-5">
+          <i class="bi bi-search display-1 text-muted mb-3"></i>
+          <h3 class="h4 text-muted mb-2">Aucune offre trouvée</h3>
+          <p class="text-muted">Essayez avec d'autres critères de recherche</p>
+        </div>
+      } @else {
+        <!-- Statistiques -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <span class="badge bg-primary rounded-pill">{{ totalJobs }} offres trouvées</span>
+          </div>
+          <div class="text-muted">
+            Page {{ currentPage }} sur {{ totalPages }}
+          </div>
+        </div>
+
+        <!-- Liste des offres -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+          @for (job of jobs; track job.id) {
+            <div class="col">
+              <app-job-card
+                [job]="job"
+                [isAuthenticated]="isAuthenticated"
+                [isFavorite]="isJobFavorite(job.id) | async"
+                [isApplied]="getAppliedJobIds() | async | includes: job.id"
+                (toggleFavorite)="onToggleFavorite($event)"
+                (trackApplication)="onTrackApplication($event)">
+              </app-job-card>
+            </div>
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1) {
+          <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <button class="page-link" (click)="onPageChange(currentPage - 1)">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+              </li>
+
+              @for (page of [1, 2, 3, 4, 5].filter(p => p <= totalPages); track page) {
+                <li class="page-item" [class.active]="currentPage === page">
+                  <button class="page-link" (click)="onPageChange(page)">
+                    {{ page }}
+                  </button>
+                </li>
+              }
+
+              @if (totalPages > 5) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                <li class="page-item" [class.active]="currentPage === totalPages">
+                  <button class="page-link" (click)="onPageChange(totalPages)">
+                    {{ totalPages }}
+                  </button>
+                </li>
+              }
+
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <button class="page-link" (click)="onPageChange(currentPage + 1)">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        }
+      }
+    </div>
+  </div>
+</div>
