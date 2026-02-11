@@ -1,11 +1,19 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "firstName": "Admin",
       "lastName": "User",
       "email": "admin@example.com",
       "password": "admin123"
+    },
+    {
+      "id": "7695",
+      "firstName": "Ichrak",
+      "lastName": "Jaifra",
+      "email": "ichrak@gmail.com",
+      "password": "ichrak",
+      "createdAt": "2026-02-11T14:06:01.276Z"
     }
   ],
   "favorites": [],

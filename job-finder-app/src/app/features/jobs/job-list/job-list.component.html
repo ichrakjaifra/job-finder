@@ -147,8 +147,8 @@
               <app-job-card
                 [job]="job"
                 [isAuthenticated]="isAuthenticated"
-                [isFavorite]="isJobFavorite(job.id) | async"
-                [isApplied]="getAppliedJobIds() | async | includes: job.id"
+                [isFavorite]="(isJobFavorite(job.id) | async) === true"
+                [isApplied]="false"
                 (toggleFavorite)="onToggleFavorite($event)"
                 (trackApplication)="onTrackApplication($event)">
               </app-job-card>
@@ -166,7 +166,7 @@
                 </button>
               </li>
 
-              @for (page of [1, 2, 3, 4, 5].filter(p => p <= totalPages); track page) {
+              @for (page of getPageNumbers(); track page) {
                 <li class="page-item" [class.active]="currentPage === page">
                   <button class="page-link" (click)="onPageChange(page)">
                     {{ page }}

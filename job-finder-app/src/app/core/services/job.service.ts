@@ -7,7 +7,7 @@ import { Job, JobFilters, JobSearchResponse } from '../models/job';
   providedIn: 'root'
 })
 export class JobService {
-  private readonly API_BASE_URL = 'https://job-finder-api-nine.vercel.app';
+  private readonly API_BASE_URL = 'https://job-finder-api-nine.vercel.app/api/jobs';
 
   constructor(private http: HttpClient) {}
 
