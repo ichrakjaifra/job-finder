@@ -1,0 +1,132 @@
+.job-description {
+  white-space: pre-line;
+  line-height: 1.8;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.job-description p {
+  margin-bottom: 1rem;
+}
+
+.bg-light.rounded-3 {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.bg-light.rounded-3:hover {
+  background-color: #e9ecef !important;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.card {
+  border-radius: 16px;
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-bottom: none;
+}
+
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.btn-outline-success:hover {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border-color: transparent;
+}
+
+.spinner-border {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .card-header .h2 {
+    font-size: 1.5rem;
+  }
+
+  .d-flex.gap-2 {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .d-flex.gap-2 .btn,
+  .d-flex.gap-2 .badge {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+}
+
+/* Animation d'entrée */
+.card {
+  animation: slideInUp 0.5s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}

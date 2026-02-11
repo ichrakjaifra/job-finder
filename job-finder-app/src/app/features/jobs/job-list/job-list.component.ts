@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, debounceTime, distinctUntilChanged, switchMap, take } from 'rxjs';
+import { Observable, Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 import { JobCardComponent } from '../../../shared/components/job-card/job-card.component';
 import { Job, JobFilters } from '../../../core/models/job';
@@ -66,39 +67,26 @@ export class JobListComponent implements OnInit {
       distinctUntilChanged((prev, curr) =>
         JSON.stringify(prev) === JSON.stringify(curr)
       ),
-      switchMap(filters => this.performSearch(filters))
-    ).subscribe();
-
-    this.performSearch(this.filters).subscribe();
-  }
-
-  performSearch(filters: JobFilters): Observable<any> {
-    this.loading = true;
-    return this.jobService.searchJobs(filters, this.currentPage).pipe(
-      take(1)
-    ).subscribe({
-      next: (response) => {
-        this.jobs = response.jobs;
-        this.totalJobs = response.total;
-        this.totalPages = response.pages;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Search error:', error);
-        this.loading = false;
-      }
+      switchMap(filters => this.jobService.searchJobs(filters, this.currentPage)) // ✅ CORRIGÉ
+    ).subscribe(response => {
+      this.jobs = response.jobs;
+      this.totalJobs = response.total;
+      this.totalPages = response.pages;
+      this.loading = false;
     });
   }
 
   onSearch(): void {
     this.currentPage = 1;
+    this.loading = true;
     this.searchTerms.next({ ...this.filters });
   }
 
   onPageChange(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
-    this.performSearch(this.filters).subscribe();
+    this.loading = true;
+    this.searchTerms.next({ ...this.filters });
   }
 
   onToggleFavorite(job: Job): void {
@@ -119,6 +107,7 @@ export class JobListComponent implements OnInit {
       } else {
         this.store.dispatch(addFavorite({
           favorite: {
+            userId: this.authService.getUserId()!,
             jobId: job.id,
             apiSource: job.apiSource,
             title: job.title,
@@ -138,7 +127,7 @@ export class JobListComponent implements OnInit {
 
     this.applicationService.getApplicationByJobId(job.id).pipe(
       take(1)
-    ).subscribe(applications => {
+    ).subscribe((applications: any[]) => {
       if (applications.length === 0) {
         this.applicationService.addApplication({
           jobId: job.id,
@@ -167,7 +156,7 @@ export class JobListComponent implements OnInit {
   getAppliedJobIds(): Observable<string[]> {
     return this.applicationService.getApplications().pipe(
       take(1),
-      map(applications => applications.map(app => app.jobId))
+      map((applications: any[]) => applications.map((app: any) => app.jobId))
     );
   }
 

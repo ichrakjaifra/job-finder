@@ -2,13 +2,11 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, mergeMap, catchError, withLatestFrom } from 'rxjs/operators';
-import { Store } from '@ngrx/store';
 import { HttpClient } from '@angular/common/http';
 
 import * as FavoritesActions from './favorites.actions';
 import { Favorite } from '../../../core/models/favorite';
 import { AuthService } from '../../../core/services/auth.service';
-import { AppState } from '../../../app.state';
 
 @Injectable()
 export class FavoritesEffects {
@@ -17,8 +15,7 @@ export class FavoritesEffects {
   constructor(
     private actions$: Actions,
     private http: HttpClient,
-    private authService: AuthService,
-    private store: Store<AppState>
+    private authService: AuthService
   ) {}
 
   loadFavorites$ = createEffect(() =>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { User, LoginCredentials, RegisterData } from '../models/user';
 
@@ -32,27 +32,27 @@ export class AuthService {
       lastName: userData.lastName,
       email: userData.email,
       password: userData.password,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     });
   }
 
-  login(credentials: LoginCredentials): Observable<User> {
+  login(credentials: LoginCredentials): Observable<User | null> {
     return this.http.get<User[]>(
       `${this.API_URL}/users?email=${credentials.email}&password=${credentials.password}`
     ).pipe(
-      tap(users => {
+      map(users => {
         if (users.length > 0) {
           const user = users[0];
-          // Remove password before storing
           const { password, ...userWithoutPassword } = user;
           this.setCurrentUser(userWithoutPassword);
+          return userWithoutPassword;
         }
+        return null;
       })
     );
   }
 
   setCurrentUser(user: User): void {
-    // Stockage dans localStorage pour persistance
     localStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
