@@ -1,1 +1,49 @@
-<p>search-form works!</p>
+<form (ngSubmit)="onSearch()" #searchForm="ngForm">
+  <div class="row g-3">
+    <!-- Mots-clés -->
+    <div class="col-md-6">
+      <div class="form-floating">
+        <input type="text"
+               class="form-control"
+               id="keywords"
+               [(ngModel)]="filters.keywords"
+               name="keywords"
+               placeholder="Ex: Développeur Angular"
+               required>
+        <label for="keywords">
+          <i class="bi bi-search me-1"></i>Mots-clés
+        </label>
+      </div>
+    </div>
+
+    <!-- Localisation -->
+    <div class="col-md-6">
+      <div class="form-floating">
+        <input type="text"
+               class="form-control"
+               id="location"
+               [(ngModel)]="filters.location"
+               name="location"
+               placeholder="Ex: Casablanca">
+        <label for="location">
+          <i class="bi bi-geo-alt me-1"></i>Localisation
+        </label>
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="col-12">
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1" [disabled]="loading || !filters.keywords">
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          }
+          <i class="bi bi-search me-1"></i>Rechercher
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="onClear()">
+          <i class="bi bi-x-circle me-1"></i>Réinitialiser
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
