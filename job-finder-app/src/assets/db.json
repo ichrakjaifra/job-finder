@@ -52,10 +52,10 @@
       "company": "Wipro",
       "location": "Pune, India",
       "url": "https://www.themuse.com/jobs/wipro/administrator-l3-957918",
-      "status": "pending",
+      "status": "rejected",
       "notes": "",
       "dateAdded": "2026-02-12T15:14:10.480Z",
-      "lastUpdated": "2026-02-12T15:14:10.480Z"
+      "lastUpdated": "2026-02-12T15:40:52.412Z"
     },
     {
       "id": "1ee0",
@@ -66,10 +66,10 @@
       "company": "Schneider Electric",
       "location": "Helsinki, Finland",
       "url": "https://www.themuse.com/jobs/schneiderelectric/nordic-segment-leader-life-sciences",
-      "status": "pending",
+      "status": "accepted",
       "notes": "",
       "dateAdded": "2026-02-12T15:19:15.017Z",
-      "lastUpdated": "2026-02-12T15:19:15.017Z"
+      "lastUpdated": "2026-02-12T15:40:07.934Z"
     }
   ]
 }
