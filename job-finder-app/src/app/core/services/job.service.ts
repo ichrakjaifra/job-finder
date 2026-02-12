@@ -1,172 +1,122 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map, forkJoin } from 'rxjs';
-import { Job, JobFilters, JobSearchResponse } from '../models/job';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import {
+  Job,
+  JobFilters,
+  JobSearchResponse,
+  JobResponse
+} from '../models/job';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobService {
-  private readonly API_BASE_URL = 'https://job-finder-api-nine.vercel.app/api/jobs';
+  // Via Angular proxy => redirigé vers https://www.themuse.com/api/public
+  private readonly API_BASE_URL = '/api/muse';
 
   constructor(private http: HttpClient) {}
 
   searchJobs(filters: JobFilters, page: number = 1): Observable<JobSearchResponse> {
-    const params: any = {
-      query: filters.keywords,
-      location: filters.location,
-      page: page.toString()
-    };
+    // Construire les paramètres pour The Muse API
+    // The Muse API utilise page 0-indexed
+    let params = new HttpParams()
+      .set('page', (page - 1).toString())
+      .set('descending', 'true');
 
-    if (filters.type) params.type = filters.type;
-    if (filters.experience) params.experience = filters.experience;
-    if (filters.salaryMin) params.salary_min = filters.salaryMin.toString();
-    if (filters.remote) params.remote = 'true';
+    if (filters.keywords) {
+      params = params.set('query', filters.keywords);
+    }
 
-    // Utiliser plusieurs APIs simultanément
-    return forkJoin({
-      adzuna: this.searchAdzunaJobs(params),
-      reed: this.searchReedJobs(params),
-      indeed: this.searchIndeedJobs(params)
-    }).pipe(
-      map(({ adzuna, reed, indeed }) => {
-        const allJobs = [
-          ...adzuna.jobs,
-          ...reed.jobs,
-          ...indeed.jobs
-        ];
+    if (filters.location) {
+      params = params.set('location', filters.location);
+    }
 
-        // Filtrer par titre contenant les mots-clés
-        const filteredJobs = allJobs.filter(job =>
-          job.title.toLowerCase().includes(filters.keywords.toLowerCase())
+    if (filters.experience) {
+      params = params.set('level', filters.experience);
+    }
+
+    return this.http.get<JobResponse>(`${this.API_BASE_URL}/jobs`, { params }).pipe(
+      map((response: JobResponse) => {
+        let results = response.results || [];
+
+        // Filtrer par titre contenant les mots-clés (exigence métier)
+        if (filters.keywords) {
+          const keywordsLower = filters.keywords.toLowerCase();
+          results = results.filter(job =>
+            job.name.toLowerCase().includes(keywordsLower)
+          );
+        }
+
+        // Filtrer par localisation
+        if (filters.location) {
+          const locationLower = filters.location.toLowerCase();
+          results = results.filter(job =>
+            job.locations?.some(loc =>
+              loc.name.toLowerCase().includes(locationLower)
+            )
+          );
+        }
+
+        // Trier par date de publication (du plus récent au plus ancien)
+        results.sort((a, b) =>
+          new Date(b.publication_date).getTime() - new Date(a.publication_date).getTime()
         );
-
-        // Trier par date de publication
-        const sortedJobs = filteredJobs.sort((a, b) =>
-          new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime()
-        );
-
-        // Pagination
-        const pageSize = 10;
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        const paginatedJobs = sortedJobs.slice(startIndex, endIndex);
 
         return {
-          jobs: paginatedJobs,
-          total: sortedJobs.length,
-          page,
-          pages: Math.ceil(sortedJobs.length / pageSize)
+          jobs: results,
+          total: response.total || results.length,
+          page: page,
+          pages: response.page_count || Math.ceil((response.total || results.length) / 10)
         };
       })
     );
   }
 
-  private searchAdzunaJobs(params: any): Observable<{ jobs: Job[] }> {
-    return this.http.get<any>(`${this.API_BASE_URL}/adzuna`, { params }).pipe(
-      map(response => ({
-        jobs: response.results?.map((job: any) => this.mapAdzunaJob(job)) || []
-      }))
-    );
+  getJobById(id: number): Observable<Job> {
+    return this.http.get<Job>(`${this.API_BASE_URL}/jobs/${id}`);
   }
 
-  private searchReedJobs(params: any): Observable<{ jobs: Job[] }> {
-    return this.http.get<any>(`${this.API_BASE_URL}/reed`, { params }).pipe(
-      map(response => ({
-        jobs: response.results?.map((job: any) => this.mapReedJob(job)) || []
-      }))
-    );
+  // Utility functions
+  getJobTitle(job: Job): string {
+    return job.name;
   }
 
-  private searchIndeedJobs(params: any): Observable<{ jobs: Job[] }> {
-    return this.http.get<any>(`${this.API_BASE_URL}/indeed`, { params }).pipe(
-      map(response => ({
-        jobs: response.results?.map((job: any) => this.mapIndeedJob(job)) || []
-      }))
-    );
+  getJobCompany(job: Job): string {
+    return job.company?.name || 'Company not specified';
   }
 
-  private mapAdzunaJob(apiJob: any): Job {
-    return {
-      id: apiJob.id,
-      title: apiJob.title,
-      company: apiJob.company?.display_name || 'Company not specified',
-      location: apiJob.location?.display_name || 'Location not specified',
-      description: apiJob.description,
-      salary: apiJob.salary_min || apiJob.salary_max ? {
-        min: apiJob.salary_min,
-        max: apiJob.salary_max,
-        currency: apiJob.salary_is_predicted ? 'GBP' : 'USD'
-      } : undefined,
-      type: apiJob.contract_type || 'Full-time',
-      experience: apiJob.category?.label || 'Not specified',
-      postedDate: apiJob.created,
-      applyUrl: apiJob.redirect_url,
-      apiSource: 'adzuna'
-    };
+  getJobLocation(job: Job): string {
+    return job.locations?.[0]?.name || 'Location not specified';
   }
 
-  private mapReedJob(apiJob: any): Job {
-    return {
-      id: apiJob.jobId.toString(),
-      title: apiJob.jobTitle,
-      company: apiJob.employerName,
-      location: apiJob.locationName,
-      description: apiJob.jobDescription,
-      salary: apiJob.minimumSalary ? {
-        min: apiJob.minimumSalary,
-        max: apiJob.maximumSalary,
-        currency: 'GBP'
-      } : undefined,
-      type: apiJob.jobType,
-      experience: 'Not specified',
-      postedDate: apiJob.date,
-      applyUrl: apiJob.jobUrl,
-      apiSource: 'reed'
-    };
+  getJobDescription(job: Job): string {
+    return job.contents?.replace(/<[^>]*>/g, '') || '';
   }
 
-  private mapIndeedJob(apiJob: any): Job {
-    return {
-      id: apiJob.jobkey,
-      title: apiJob.jobTitle,
-      company: apiJob.company,
-      location: apiJob.formattedLocation,
-      description: apiJob.snippet,
-      salary: apiJob.salary ? {
-        min: this.parseSalary(apiJob.salary).min,
-        max: this.parseSalary(apiJob.salary).max,
-        currency: 'USD'
-      } : undefined,
-      type: apiJob.jobType,
-      experience: 'Not specified',
-      postedDate: apiJob.date,
-      applyUrl: apiJob.url,
-      apiSource: 'indeed'
-    };
+  getJobShortDescription(job: Job, length: number = 150): string {
+    const desc = this.getJobDescription(job);
+    return desc.length > length ? desc.substring(0, length) + '...' : desc;
   }
 
-  private parseSalary(salaryText: string): { min: number, max: number } {
-    const matches = salaryText.match(/\$?(\d+(?:,\d+)?)/g);
-    if (matches && matches.length >= 2) {
-      return {
-        min: parseInt(matches[0].replace(/[$,]/g, '')),
-        max: parseInt(matches[1].replace(/[$,]/g, ''))
-      };
-    }
-    return { min: 0, max: 0 };
+  getJobType(job: Job): string {
+    return job.levels?.[0]?.name || 'Full-time';
   }
 
-  getJobById(id: string, source: string): Observable<Job> {
-    return this.http.get<any>(`${this.API_BASE_URL}/${source}/${id}`).pipe(
-      map(response => {
-        switch(source) {
-          case 'adzuna': return this.mapAdzunaJob(response);
-          case 'reed': return this.mapReedJob(response);
-          case 'indeed': return this.mapIndeedJob(response);
-          default: throw new Error('Unknown API source');
-        }
-      })
-    );
+  getJobExperience(job: Job): string {
+    return job.levels?.[0]?.name || 'Not specified';
+  }
+
+  getJobPostedDate(job: Job): string {
+    return job.publication_date;
+  }
+
+  getJobApplyUrl(job: Job): string {
+    return job.refs?.landing_page || '#';
+  }
+
+  getJobApiSource(): string {
+    return 'themuse';
   }
 }

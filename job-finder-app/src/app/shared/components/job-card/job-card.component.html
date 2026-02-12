@@ -2,9 +2,9 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start mb-3">
       <div>
-        <h5 class="card-title mb-1 fw-bold text-primary">{{ job.title }}</h5>
+        <h5 class="card-title mb-1 fw-bold text-primary">{{ getJobTitle() }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">
-          <i class="bi bi-building me-1"></i> {{ job.company }}
+          <i class="bi bi-building me-1"></i> {{ getJobCompany() }}
         </h6>
       </div>
 
@@ -30,34 +30,30 @@
 
     <div class="mb-3">
       <span class="badge bg-light text-dark me-2 mb-2">
-        <i class="bi bi-geo-alt me-1"></i> {{ job.location }}
+        <i class="bi bi-geo-alt me-1"></i> {{ getJobLocation() }}
       </span>
       <span class="badge bg-light text-dark me-2 mb-2">
-        <i class="bi bi-clock me-1"></i> {{ job.type }}
-      </span>
-      <span class="badge bg-light text-dark me-2 mb-2">
-        <i class="bi bi-cash me-1"></i> {{ formatSalary(job.salary) }}
+        <i class="bi bi-clock me-1"></i> {{ getJobType() }}
       </span>
     </div>
 
     <p class="card-text text-muted mb-3 line-clamp-3">
-      {{ job.description }}
+      {{ getJobDescription() }}
     </p>
 
     <div class="d-flex justify-content-between align-items-center mt-auto">
       <small class="text-muted">
-        <i class="bi bi-calendar me-1"></i> Publié {{ formatDate(job.postedDate) }}
+        <i class="bi bi-calendar me-1"></i> Publié {{ formatDate(getJobPostedDate()) }}
       </small>
 
       <div class="d-flex gap-2">
-        <a [href]="job.applyUrl"
+        <a [href]="getJobApplyUrl()"
            target="_blank"
            class="btn btn-sm btn-primary"
            title="Voir l'offre complète">
           <i class="bi bi-eye me-1"></i> Voir l'offre
         </a>
         <a [routerLink]="['/jobs', job.id]"
-           [queryParams]="{ source: job.apiSource }"
            class="btn btn-sm btn-outline-primary"
            title="Voir les détails">
           <i class="bi bi-info-circle me-1"></i> Détails

@@ -38,7 +38,6 @@ export class JobListComponent implements OnInit {
   currentPage = 1;
   totalPages = 1;
   totalJobs = 0;
-
   isAuthenticated = false;
   favorites$: Observable<Favorite[]>;
   searchTerms = new Subject<JobFilters>();
@@ -84,6 +83,9 @@ export class JobListComponent implements OnInit {
         this.totalPages = 1;
       }
     });
+
+    // Load initial jobs
+    this.onSearch();
   }
 
   onSearch(): void {
@@ -99,34 +101,22 @@ export class JobListComponent implements OnInit {
     this.searchTerms.next({ ...this.filters });
   }
 
-  /**
-   * Génère les numéros de page pour la pagination
-   * Affiche jusqu'à 5 pages autour de la page courante
-   */
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisible = 5;
 
     if (this.totalPages <= maxVisible) {
-      // Si moins de 5 pages, afficher toutes les pages
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
     } else {
-      // Calculer la page de départ pour avoir la page courante au milieu
       let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
       let end = Math.min(this.totalPages, start + maxVisible - 1);
 
-      // Ajuster si on est à la fin
       if (end - start + 1 < maxVisible) {
         start = Math.max(1, end - maxVisible + 1);
       }
 
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
+      for (let i = start; i <= end; i++) pages.push(i);
     }
-
     return pages;
   }
 
@@ -136,14 +126,16 @@ export class JobListComponent implements OnInit {
       return;
     }
 
-    this.store.select(selectIsJobFavorite(job.id)).pipe(
+    const jobId = job.id.toString(); // Convertir number → string
+
+    this.store.select(selectIsJobFavorite(jobId)).pipe(
       take(1)
     ).subscribe(isFavorite => {
       if (isFavorite) {
         this.store.select(selectAllFavorites).pipe(
           take(1)
         ).subscribe(favorites => {
-          const favorite = favorites.find(f => f.jobId === job.id);
+          const favorite = favorites.find(f => f.jobId === jobId);
           if (favorite?.id) {
             this.store.dispatch(removeFavorite({ id: favorite.id }));
           }
@@ -158,14 +150,14 @@ export class JobListComponent implements OnInit {
         this.store.dispatch(addFavorite({
           favorite: {
             userId: userId,
-            jobId: job.id,
-            apiSource: job.apiSource,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            url: job.applyUrl,
-            salary: job.salary ? `${job.salary.min}-${job.salary.max} ${job.salary.currency}` : undefined,
-            type: job.type
+            jobId: jobId, // string
+            apiSource: 'themuse',
+            title: this.jobService.getJobTitle(job),
+            company: this.jobService.getJobCompany(job),
+            location: this.jobService.getJobLocation(job),
+            url: this.jobService.getJobApplyUrl(job),
+            salary: undefined,
+            type: this.jobService.getJobType(job)
           }
         }));
       }
@@ -178,18 +170,20 @@ export class JobListComponent implements OnInit {
       return;
     }
 
-    this.applicationService.getApplicationByJobId(job.id).pipe(
+    const jobId = job.id.toString();
+
+    this.applicationService.getApplicationByJobId(jobId).pipe(
       take(1)
     ).subscribe({
       next: (applications: any[]) => {
         if (applications.length === 0) {
           this.applicationService.addApplication({
-            jobId: job.id,
-            apiSource: job.apiSource,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            url: job.applyUrl,
+            jobId: jobId,
+            apiSource: 'themuse',
+            title: this.jobService.getJobTitle(job),
+            company: this.jobService.getJobCompany(job),
+            location: this.jobService.getJobLocation(job),
+            url: this.jobService.getJobApplyUrl(job),
             notes: ''
           }).subscribe({
             next: () => {
@@ -211,23 +205,8 @@ export class JobListComponent implements OnInit {
     });
   }
 
-  isJobFavorite(jobId: string): Observable<boolean> {
-    return this.store.select(selectIsJobFavorite(jobId));
-  }
-
-  getAppliedJobIds(): Observable<string[]> {
-    if (!this.isAuthenticated) {
-      return new Observable<string[]>(observer => {
-        observer.next([]);
-        observer.complete();
-      });
-    }
-
-    return this.applicationService.getApplications().pipe(
-      take(1),
-      map((applications: any[]) => applications.map((app: any) => app.jobId)),
-      map(ids => ids || [])
-    );
+  isJobFavorite(jobId: number): Observable<boolean> {
+    return this.store.select(selectIsJobFavorite(jobId.toString()));
   }
 
   clearFilters(): void {
@@ -242,37 +221,7 @@ export class JobListComponent implements OnInit {
     this.onSearch();
   }
 
-  /**
-   * Vérifie si une offre est déjà suivie
-   */
-  isJobApplied(jobId: string): Observable<boolean> {
-    return this.getAppliedJobIds().pipe(
-      map(ids => ids.includes(jobId))
-    );
-  }
-
-  /**
-   * Formatte le nombre d'offres trouvées
-   */
-  getJobsCountText(): string {
-    if (this.totalJobs === 0) return 'Aucune offre trouvée';
-    if (this.totalJobs === 1) return '1 offre trouvée';
-    return `${this.totalJobs} offres trouvées`;
-  }
-
-  /**
-   * Réinitialise la recherche avec les filtres par défaut
-   */
   resetSearch(): void {
-    this.filters = {
-      keywords: '',
-      location: '',
-      type: '',
-      experience: '',
-      salaryMin: undefined,
-      remote: false
-    };
-    this.currentPage = 1;
-    this.onSearch();
+    this.clearFilters();
   }
 }

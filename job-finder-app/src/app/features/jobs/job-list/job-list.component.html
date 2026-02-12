@@ -1,3 +1,4 @@
+
 <div class="container py-4">
   <!-- En-tête -->
   <div class="row mb-4">
@@ -16,7 +17,7 @@
     </div>
   </div>
 
-  <!-- Formulaire de recherche -->
+
   <div class="card shadow-sm mb-4 border-0">
     <div class="card-body">
       <form (ngSubmit)="onSearch()" #searchForm="ngForm">
@@ -30,8 +31,7 @@
                    id="keywords"
                    [(ngModel)]="filters.keywords"
                    name="keywords"
-                   placeholder="Ex: Développeur Angular, Chef de projet..."
-                   required>
+                   placeholder="Ex: Développeur Angular, Chef de projet...">
           </div>
 
           <div class="col-md-6">
@@ -97,7 +97,7 @@
 
           <div class="col-12">
             <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary" [disabled]="loading || !filters.keywords">
+              <button type="submit" class="btn btn-primary" [disabled]="loading">
                 @if (loading) {
                   <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                 }
@@ -113,7 +113,7 @@
     </div>
   </div>
 
-  <!-- Résultats -->
+
   <div class="row">
     <div class="col-12">
       @if (loading) {
@@ -130,7 +130,7 @@
           <p class="text-muted">Essayez avec d'autres critères de recherche</p>
         </div>
       } @else {
-        <!-- Statistiques -->
+
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <span class="badge bg-primary rounded-pill">{{ totalJobs }} offres trouvées</span>
@@ -140,7 +140,7 @@
           </div>
         </div>
 
-        <!-- Liste des offres -->
+
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
           @for (job of jobs; track job.id) {
             <div class="col">

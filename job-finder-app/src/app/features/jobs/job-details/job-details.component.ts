@@ -38,17 +38,18 @@ export class JobDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    const source = this.route.snapshot.queryParamMap.get('source') || 'adzuna';
+    const idParam = this.route.snapshot.paramMap.get('id');
 
-    if (id) {
-      this.job$ = this.jobService.getJobById(id, source).pipe(
+    if (idParam) {
+      const id = parseInt(idParam, 10);
+
+      this.job$ = this.jobService.getJobById(id).pipe(
         switchMap(job => {
           this.loading = false;
-          this.isFavorite$ = this.store.select(selectIsJobFavorite(job.id));
+          this.isFavorite$ = this.store.select(selectIsJobFavorite(job.id.toString()));
 
           if (this.isAuthenticated) {
-            this.applicationService.getApplicationByJobId(job.id).subscribe({
+            this.applicationService.getApplicationByJobId(job.id.toString()).subscribe({
               next: (apps) => this.isApplied = apps.length > 0,
               error: () => this.isApplied = false
             });
@@ -60,11 +61,41 @@ export class JobDetailsComponent implements OnInit {
     }
   }
 
-  formatSalary(salary: any): string {
-    if (!salary) return 'Non spécifié';
-    const min = salary.min?.toLocaleString() || 'N/A';
-    const max = salary.max?.toLocaleString() || 'N/A';
-    return `${min} - ${max} ${salary.currency}`;
+  // Formatage pour l'affichage
+  getJobTitle(job: Job): string {
+    return this.jobService.getJobTitle(job);
+  }
+
+  getJobCompany(job: Job): string {
+    return this.jobService.getJobCompany(job);
+  }
+
+  getJobLocation(job: Job): string {
+    return this.jobService.getJobLocation(job);
+  }
+
+  getJobDescription(job: Job): string {
+    return this.jobService.getJobDescription(job);
+  }
+
+  getJobType(job: Job): string {
+    return this.jobService.getJobType(job);
+  }
+
+  getJobExperience(job: Job): string {
+    return this.jobService.getJobExperience(job);
+  }
+
+  getJobPostedDate(job: Job): string {
+    return this.jobService.getJobPostedDate(job);
+  }
+
+  getJobApplyUrl(job: Job): string {
+    return this.jobService.getJobApplyUrl(job);
+  }
+
+  getJobApiSource(): string {
+    return this.jobService.getJobApiSource();
   }
 
   formatDate(dateString: string): string {
@@ -76,21 +107,18 @@ export class JobDetailsComponent implements OnInit {
     if (diffDays === 0) return "Aujourd'hui";
     if (diffDays === 1) return 'Hier';
     if (diffDays < 7) return `Il y a ${diffDays} jours`;
-
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
+    return date.toLocaleDateString('fr-FR');
   }
 
   onToggleFavorite(job: Job): void {
     if (!this.isAuthenticated) return;
 
-    this.store.select(selectIsJobFavorite(job.id)).subscribe(isFavorite => {
+    const jobId = job.id.toString();
+
+    this.store.select(selectIsJobFavorite(jobId)).subscribe(isFavorite => {
       if (isFavorite) {
         this.store.select(state => state.favorites.favorites).subscribe((favorites: any) => {
-          const favorite = favorites.find((f: any) => f.jobId === job.id);
+          const favorite = favorites.find((f: any) => f.jobId === jobId);
           if (favorite?.id) {
             this.store.dispatch(removeFavorite({ id: favorite.id }));
           }
@@ -101,14 +129,14 @@ export class JobDetailsComponent implements OnInit {
           this.store.dispatch(addFavorite({
             favorite: {
               userId: userId,
-              jobId: job.id,
-              apiSource: job.apiSource,
-              title: job.title,
-              company: job.company,
-              location: job.location,
-              url: job.applyUrl,
-              salary: job.salary ? `${job.salary.min}-${job.salary.max} ${job.salary.currency}` : undefined,
-              type: job.type
+              jobId: jobId,
+              apiSource: 'themuse',
+              title: this.getJobTitle(job),
+              company: this.getJobCompany(job),
+              location: this.getJobLocation(job),
+              url: this.getJobApplyUrl(job),
+              salary: undefined,
+              type: this.getJobType(job)
             }
           }));
         }
@@ -120,12 +148,12 @@ export class JobDetailsComponent implements OnInit {
     if (!this.isAuthenticated || this.isApplied) return;
 
     this.applicationService.addApplication({
-      jobId: job.id,
-      apiSource: job.apiSource,
-      title: job.title,
-      company: job.company,
-      location: job.location,
-      url: job.applyUrl,
+      jobId: job.id.toString(),
+      apiSource: 'themuse',
+      title: this.getJobTitle(job),
+      company: this.getJobCompany(job),
+      location: this.getJobLocation(job),
+      url: this.getJobApplyUrl(job),
       notes: ''
     }).subscribe({
       next: () => {

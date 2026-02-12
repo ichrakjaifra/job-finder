@@ -7,7 +7,7 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
-import { authInterceptor } from './core/interceptors/auth.interceptor'; // ✅ CHANGÉ: authInterceptor (fonction)
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { favoritesReducer } from './features/favorites/store/favorites.reducer';
 import { FavoritesEffects } from './features/favorites/store/favorites.effects';
 

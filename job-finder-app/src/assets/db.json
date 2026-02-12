@@ -16,6 +16,60 @@
       "createdAt": "2026-02-11T14:06:01.276Z"
     }
   ],
-  "favorites": [],
-  "applications": []
+  "favorites": [
+    {
+      "id": "042c",
+      "userId": "7695",
+      "jobId": "21268803",
+      "apiSource": "themuse",
+      "title": "ADMINISTRATOR L3",
+      "company": "Wipro",
+      "location": "Pune, India",
+      "url": "https://www.themuse.com/jobs/wipro/administrator-l3-957918",
+      "type": "Senior Level",
+      "addedDate": "2026-02-12T15:13:10.304Z"
+    },
+    {
+      "id": "7775",
+      "userId": "7695",
+      "jobId": "21262881",
+      "apiSource": "themuse",
+      "title": "Nordic Segment Leader - Life Sciences",
+      "company": "Schneider Electric",
+      "location": "Helsinki, Finland",
+      "url": "https://www.themuse.com/jobs/schneiderelectric/nordic-segment-leader-life-sciences",
+      "type": "Mid Level",
+      "addedDate": "2026-02-12T15:19:38.748Z"
+    }
+  ],
+  "applications": [
+    {
+      "id": "b2c1",
+      "userId": "7695",
+      "jobId": "21268803",
+      "apiSource": "themuse",
+      "title": "ADMINISTRATOR L3",
+      "company": "Wipro",
+      "location": "Pune, India",
+      "url": "https://www.themuse.com/jobs/wipro/administrator-l3-957918",
+      "status": "pending",
+      "notes": "",
+      "dateAdded": "2026-02-12T15:14:10.480Z",
+      "lastUpdated": "2026-02-12T15:14:10.480Z"
+    },
+    {
+      "id": "1ee0",
+      "userId": "7695",
+      "jobId": "21262881",
+      "apiSource": "themuse",
+      "title": "Nordic Segment Leader - Life Sciences",
+      "company": "Schneider Electric",
+      "location": "Helsinki, Finland",
+      "url": "https://www.themuse.com/jobs/schneiderelectric/nordic-segment-leader-life-sciences",
+      "status": "pending",
+      "notes": "",
+      "dateAdded": "2026-02-12T15:19:15.017Z",
+      "lastUpdated": "2026-02-12T15:19:15.017Z"
+    }
+  ]
 }
