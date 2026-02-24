@@ -1,0 +1,130 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0">
+        <div class="card-body p-5">
+          <!-- En-tête -->
+          <div class="text-center mb-4">
+            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width: 60px; height: 60px;">
+              <i class="bi bi-person-plus text-white fs-3"></i>
+            </div>
+            <h2 class="fw-bold text-primary">Créer un compte</h2>
+            <p class="text-muted">Rejoignez JobFinder et trouvez votre emploi de rêve</p>
+          </div>
+
+          <!-- Formulaire -->
+          <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+            <div class="row">
+              <!-- Prénom -->
+              <div class="col-md-6 mb-3">
+                <label for="firstName" class="form-label fw-semibold">
+                  <i class="bi bi-person me-1"></i> Prénom
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="firstName"
+                       [(ngModel)]="userData.firstName"
+                       name="firstName"
+                       placeholder="Votre prénom"
+                       required>
+              </div>
+
+              <!-- Nom -->
+              <div class="col-md-6 mb-3">
+                <label for="lastName" class="form-label fw-semibold">
+                  <i class="bi bi-person me-1"></i> Nom
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="lastName"
+                       [(ngModel)]="userData.lastName"
+                       name="lastName"
+                       placeholder="Votre nom"
+                       required>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold">
+                <i class="bi bi-envelope me-1"></i> Adresse email
+              </label>
+              <input type="email"
+                     class="form-control"
+                     id="email"
+                     [(ngModel)]="userData.email"
+                     name="email"
+                     placeholder="votre@email.com"
+                     required>
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="mb-3">
+              <label for="password" class="form-label fw-semibold">
+                <i class="bi bi-lock me-1"></i> Mot de passe
+              </label>
+              <input type="password"
+                     class="form-control"
+                     id="password"
+                     [(ngModel)]="userData.password"
+                     name="password"
+                     placeholder="Au moins 6 caractères"
+                     required>
+            </div>
+
+            <!-- Confirmation mot de passe -->
+            <div class="mb-4">
+              <label for="confirmPassword" class="form-label fw-semibold">
+                <i class="bi bi-lock me-1"></i> Confirmer le mot de passe
+              </label>
+              <input type="password"
+                     class="form-control"
+                     id="confirmPassword"
+                     [(ngModel)]="userData.confirmPassword"
+                     name="confirmPassword"
+                     placeholder="Confirmez votre mot de passe"
+                     required>
+            </div>
+
+            <!-- Messages -->
+            @if (errorMessage) {
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                {{ errorMessage }}
+                <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+              </div>
+            }
+
+            @if (successMessage) {
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>
+                {{ successMessage }}
+              </div>
+            }
+
+            <!-- Bouton d'inscription -->
+            <button type="submit"
+                    class="btn btn-primary btn-lg w-100 mb-3"
+                    [disabled]="loading">
+              @if (loading) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              }
+              <i class="bi bi-person-plus me-2"></i> S'inscrire
+            </button>
+
+            <!-- Lien de connexion -->
+            <div class="text-center">
+              <p class="text-muted mb-0">
+                Vous avez déjà un compte ?
+                <a routerLink="/auth/login" class="text-primary fw-semibold text-decoration-none ms-1">
+                  Se connecter
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

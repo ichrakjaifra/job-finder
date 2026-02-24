@@ -1,0 +1,71 @@
+<div class="card shadow-sm border-0 sticky-top" style="top: 80px;">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-sliders2 me-2"></i>Filtres
+      </h5>
+      <button class="btn btn-sm btn-outline-secondary" (click)="onClearFilters()">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Réinitialiser
+      </button>
+    </div>
+
+    <!-- Type de contrat -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold">
+        <i class="bi bi-clock me-1"></i>Type de contrat
+      </label>
+      <select class="form-select" [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()">
+        <option value="">Tous types</option>
+        @for (type of jobTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Niveau d'expérience -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold">
+        <i class="bi bi-graph-up me-1"></i>Expérience
+      </label>
+      <select class="form-select" [(ngModel)]="filters.experience" (ngModelChange)="onFilterChange()">
+        <option value="">Tous niveaux</option>
+        @for (level of experienceLevels; track level) {
+          <option [value]="level">{{ level }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Salaire minimum -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold">
+        <i class="bi bi-cash me-1"></i>Salaire minimum
+      </label>
+      <div class="input-group">
+        <input type="number"
+               class="form-control"
+               [(ngModel)]="filters.salaryMin"
+               (ngModelChange)="onFilterChange()"
+               placeholder="Ex: 30000">
+        @if (filters.salaryMin) {
+          <button class="btn btn-outline-secondary" type="button" (click)="clearSalary()">
+            <i class="bi bi-x"></i>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Télétravail -->
+    <div class="mb-3">
+      <div class="form-check">
+        <input class="form-check-input"
+               type="checkbox"
+               id="remote"
+               [(ngModel)]="filters.remote"
+               (ngModelChange)="onFilterChange()">
+        <label class="form-check-label fw-semibold" for="remote">
+          <i class="bi bi-laptop me-1"></i>Télétravail
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

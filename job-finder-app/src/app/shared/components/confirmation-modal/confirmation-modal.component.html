@@ -1,0 +1,34 @@
+<div class="modal-overlay">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-body text-center p-4">
+        <div class="mb-4">
+          <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-3"
+               [class.bg-danger]="type === 'danger'"
+               [class.bg-warning]="type === 'warning'"
+               [class.bg-info]="type === 'info'"
+               [class.bg-opacity-10]="true">
+            <i class="bi fs-1"
+               [class]="getIcon()"
+               [class.text-danger]="type === 'danger'"
+               [class.text-warning]="type === 'warning'"
+               [class.text-info]="type === 'info'"></i>
+          </div>
+          <h5 class="fw-bold mb-2">{{ title }}</h5>
+          <p class="text-muted mb-0">{{ message }}</p>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()">
+            {{ cancelText }}
+          </button>
+          <button type="button" class="btn px-4"
+                  [class]="getButtonClass()"
+                  (click)="onConfirm()">
+            {{ confirmText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

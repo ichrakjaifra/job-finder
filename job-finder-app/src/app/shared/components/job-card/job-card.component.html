@@ -1,0 +1,64 @@
+<div class="card job-card h-100 shadow-sm border-0">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h5 class="card-title mb-1 fw-bold text-primary">{{ getJobTitle() }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          <i class="bi bi-building me-1"></i> {{ getJobCompany() }}
+        </h6>
+      </div>
+
+      @if (isAuthenticated) {
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary"
+                  (click)="onToggleFavorite()"
+                  [class.btn-primary]="isFavorite"
+                  [title]="isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+            <i class="bi" [class.bi-star-fill]="isFavorite" [class.bi-star]="!isFavorite"></i>
+          </button>
+
+          @if (!isApplied) {
+            <button class="btn btn-sm btn-outline-success"
+                    (click)="onTrackApplication()"
+                    title="Suivre cette candidature">
+              <i class="bi bi-plus-circle"></i>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <span class="badge bg-light text-dark me-2 mb-2">
+        <i class="bi bi-geo-alt me-1"></i> {{ getJobLocation() }}
+      </span>
+      <span class="badge bg-light text-dark me-2 mb-2">
+        <i class="bi bi-clock me-1"></i> {{ getJobType() }}
+      </span>
+    </div>
+
+    <p class="card-text text-muted mb-3 line-clamp-3">
+      {{ getJobDescription() }}
+    </p>
+
+    <div class="d-flex justify-content-between align-items-center mt-auto">
+      <small class="text-muted">
+        <i class="bi bi-calendar me-1"></i> Publié {{ formatDate(getJobPostedDate()) }}
+      </small>
+
+      <div class="d-flex gap-2">
+        <a [href]="getJobApplyUrl()"
+           target="_blank"
+           class="btn btn-sm btn-primary"
+           title="Voir l'offre complète">
+          <i class="bi bi-eye me-1"></i> Voir l'offre
+        </a>
+        <a [routerLink]="['/jobs', job.id]"
+           class="btn btn-sm btn-outline-primary"
+           title="Voir les détails">
+          <i class="bi bi-info-circle me-1"></i> Détails
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

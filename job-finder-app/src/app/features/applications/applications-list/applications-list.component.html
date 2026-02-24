@@ -1,0 +1,270 @@
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h1 class="h2 fw-bold text-primary">
+                    <i class="bi bi-list-check me-2"></i>Suivi des Candidatures
+                </h1>
+                <span class="badge bg-primary rounded-pill fs-6">
+                    {{ applications.length }} candidature(s)
+                </span>
+            </div>
+            <p class="text-muted">Gérez et suivez l'état de toutes vos candidatures</p>
+        </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+    @if (applications.length > 0) {
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 fw-bold text-primary">{{ applications.length }}</div>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 fw-bold text-warning">{{ getCountByStatus('pending') }}</div>
+                    <small class="text-muted">En attente</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 fw-bold text-success">{{ getCountByStatus('accepted') }}</div>
+                    <small class="text-muted">Acceptées</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 fw-bold text-danger">{{ getCountByStatus('rejected') }}</div>
+                    <small class="text-muted">Refusées</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Filtres par statut -->
+    @if (applications.length > 0) {
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm"
+                [class]="selectedFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'"
+                (click)="onFilterChange('all')">
+                Toutes ({{ applications.length }})
+            </button>
+            <button type="button" class="btn btn-sm"
+                [class]="selectedFilter === 'pending' ? 'btn-warning' : 'btn-outline-warning'"
+                (click)="onFilterChange('pending')">
+                <i class="bi bi-clock me-1"></i>En attente ({{ getCountByStatus('pending') }})
+            </button>
+            <button type="button" class="btn btn-sm"
+                [class]="selectedFilter === 'accepted' ? 'btn-success' : 'btn-outline-success'"
+                (click)="onFilterChange('accepted')">
+                <i class="bi bi-check-circle me-1"></i>Acceptées ({{ getCountByStatus('accepted') }})
+            </button>
+            <button type="button" class="btn btn-sm"
+                [class]="selectedFilter === 'rejected' ? 'btn-danger' : 'btn-outline-danger'"
+                (click)="onFilterChange('rejected')">
+                <i class="bi bi-x-circle me-1"></i>Refusées ({{ getCountByStatus('rejected') }})
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Contenu principal -->
+    @if (loading) {
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="text-muted">Chargement de vos candidatures...</p>
+    </div>
+    } @else if (error) {
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+        <button class="btn btn-sm btn-outline-danger ms-auto" (click)="loadApplications()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+        </button>
+    </div>
+    } @else if (applications.length === 0) {
+    <div class="text-center py-5">
+        <i class="bi bi-clipboard2 display-1 text-muted mb-3"></i>
+        <h3 class="h4 text-muted mb-2">Aucune candidature</h3>
+        <p class="text-muted mb-4">
+            Vous n'avez pas encore ajouté de candidatures à suivre.
+        </p>
+        <a routerLink="/jobs" class="btn btn-primary">
+            <i class="bi bi-search me-1"></i>Rechercher des offres
+        </a>
+    </div>
+    } @else if (filteredApplications.length === 0) {
+    <div class="text-center py-5">
+        <i class="bi bi-funnel display-1 text-muted mb-3"></i>
+        <h3 class="h4 text-muted mb-2">Aucun résultat pour ce filtre</h3>
+        <p class="text-muted mb-4">
+            Aucune candidature avec le statut "{{ getStatusLabel(selectedFilter === 'all' ? 'pending' : selectedFilter)
+            }}"
+        </p>
+        <button class="btn btn-outline-primary" (click)="onFilterChange('all')">
+            Voir toutes les candidatures
+        </button>
+    </div>
+    } @else {
+    <!-- Liste des candidatures -->
+    <div class="row row-cols-1 g-3">
+        @for (app of filteredApplications; track app.id) {
+        <div class="col">
+            <div class="card shadow-sm border-0 application-card">
+                <div class="card-body">
+                    <div class="row align-items-start">
+                        <!-- Info offre -->
+                        <div class="col-md-5">
+                            <div class="d-flex align-items-start">
+                                <div class="status-indicator me-3 mt-1">
+                                    <i class="bi {{ getStatusIcon(app.status) }} fs-4"
+                                        [class.text-warning]="app.status === 'pending'"
+                                        [class.text-success]="app.status === 'accepted'"
+                                        [class.text-danger]="app.status === 'rejected'"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1 fw-bold">{{ app.title }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        <i class="bi bi-building me-1"></i>{{ app.company }}
+                                    </h6>
+                                    <div class="mb-2">
+                                        <span class="badge bg-light text-dark me-2">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ app.location }}
+                                        </span>
+                                        <span class="badge {{ getStatusBadgeClass(app.status) }}">
+                                            <i class="bi {{ getStatusIcon(app.status) }} me-1"></i>
+                                            {{ getStatusLabel(app.status) }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>Ajoutée le {{ formatDate(app.dateAdded) }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Changement de statut -->
+                        <div class="col-md-3 mt-3 mt-md-0">
+                            <label class="form-label fw-semibold small text-muted">Changer le statut :</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button class="btn btn-sm"
+                                    [class]="app.status === 'pending' ? 'btn-warning' : 'btn-outline-warning'"
+                                    (click)="updateStatus(app, 'pending')" [disabled]="app.status === 'pending'"
+                                    title="En attente">
+                                    <i class="bi bi-clock"></i>
+                                </button>
+                                <button class="btn btn-sm"
+                                    [class]="app.status === 'accepted' ? 'btn-success' : 'btn-outline-success'"
+                                    (click)="updateStatus(app, 'accepted')" [disabled]="app.status === 'accepted'"
+                                    title="Acceptée">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                                <button class="btn btn-sm"
+                                    [class]="app.status === 'rejected' ? 'btn-danger' : 'btn-outline-danger'"
+                                    (click)="updateStatus(app, 'rejected')" [disabled]="app.status === 'rejected'"
+                                    title="Refusée">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-md-3 mt-3 mt-md-0">
+                            @if (editingNotesId === app.id) {
+                            <div>
+                                <textarea class="form-control form-control-sm mb-2" rows="3"
+                                    [(ngModel)]="editingNotesText" placeholder="Vos notes personnelles..."></textarea>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-primary" (click)="saveNotes(app)">
+                                        <i class="bi bi-check me-1"></i>Sauvegarder
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" (click)="cancelEditingNotes()">
+                                        Annuler
+                                    </button>
+                                </div>
+                            </div>
+                            } @else {
+                            <div>
+                                <label class="form-label fw-semibold small text-muted">Notes :</label>
+                                @if (app.notes) {
+                                <p class="small text-muted mb-1 notes-text">{{ app.notes }}</p>
+                                } @else {
+                                <p class="small text-muted fst-italic mb-1">Aucune note</p>
+                                }
+                                <button class="btn btn-sm btn-outline-secondary" (click)="startEditingNotes(app)">
+                                    <i class="bi bi-pencil me-1"></i>{{ app.notes ? 'Modifier' : 'Ajouter' }}
+                                </button>
+                            </div>
+                            }
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-md-1 mt-3 mt-md-0 text-end">
+                            <div class="d-flex flex-column gap-2">
+                                <a [href]="app.url" target="_blank" class="btn btn-sm btn-outline-primary"
+                                    title="Voir l'offre">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(app)"
+                                    title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Modal de confirmation de suppression -->
+    @if (applicationToDelete) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>Confirmer la suppression
+                    </h5>
+                    <button type="button" class="btn-close" (click)="cancelDelete()"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Voulez-vous vraiment supprimer le suivi de cette candidature ?</p>
+                    <div class="card bg-light border-0">
+                        <div class="card-body py-2">
+                            <strong>{{ applicationToDelete.title }}</strong><br>
+                            <small class="text-muted">{{ applicationToDelete.company }} - {{
+                                applicationToDelete.location }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" (click)="cancelDelete()">
+                        Annuler
+                    </button>
+                    <button type="button" class="btn btn-danger" (click)="deleteApplication()">
+                        <i class="bi bi-trash me-1"></i>Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

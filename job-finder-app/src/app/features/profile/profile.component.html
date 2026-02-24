@@ -1,0 +1,159 @@
+<div class="container py-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <!-- En-tête -->
+      <div class="d-flex align-items-center mb-4">
+        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold me-3"
+             style="width: 64px; height: 64px; font-size: 1.5rem;">
+          {{ getInitials() }}
+        </div>
+        <div>
+          <h1 class="h2 fw-bold text-primary mb-1">Mon Profil</h1>
+          <p class="text-muted mb-0">Gérez vos informations personnelles</p>
+        </div>
+      </div>
+
+      <!-- Message de notification -->
+      @if (message) {
+        <div class="alert" [class.alert-success]="messageType === 'success'" [class.alert-danger]="messageType === 'error'" role="alert">
+          <i class="bi" [class.bi-check-circle]="messageType === 'success'" [class.bi-exclamation-triangle]="messageType === 'error'"></i>
+          {{ message }}
+        </div>
+      }
+
+      <!-- Informations personnelles -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">
+              <i class="bi bi-person me-2 text-primary"></i>Informations personnelles
+            </h5>
+            @if (!editMode) {
+              <button class="btn btn-outline-primary btn-sm" (click)="toggleEditMode()">
+                <i class="bi bi-pencil me-1"></i> Modifier
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          @if (!editMode) {
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small d-block">Prénom</label>
+                <span class="fw-semibold">{{ user?.firstName }}</span>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small d-block">Nom</label>
+                <span class="fw-semibold">{{ user?.lastName }}</span>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="text-muted small d-block">Email</label>
+                <span class="fw-semibold">{{ user?.email }}</span>
+              </div>
+            </div>
+          } @else {
+            <form (ngSubmit)="updateProfile()">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">Prénom</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.firstName" name="firstName" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">Nom</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.lastName" name="lastName" required>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-semibold">Email</label>
+                  <input type="email" class="form-control" [(ngModel)]="editForm.email" name="email" required>
+                </div>
+                <div class="col-12">
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" [disabled]="loading">
+                      @if (loading) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      Enregistrer
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="toggleEditMode()">
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+
+      <!-- Sécurité -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">
+              <i class="bi bi-shield-lock me-2 text-primary"></i>Sécurité
+            </h5>
+            @if (!showPasswordSection) {
+              <button class="btn btn-outline-primary btn-sm" (click)="togglePasswordSection()">
+                <i class="bi bi-key me-1"></i> Changer le mot de passe
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          @if (showPasswordSection) {
+            <form (ngSubmit)="updatePassword()">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Mot de passe actuel</label>
+                <input type="password" class="form-control" [(ngModel)]="passwordForm.currentPassword" name="currentPassword" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Nouveau mot de passe</label>
+                <input type="password" class="form-control" [(ngModel)]="passwordForm.newPassword" name="newPassword" required>
+                <div class="form-text">Minimum 6 caractères</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Confirmer le mot de passe</label>
+                <input type="password" class="form-control" [(ngModel)]="passwordForm.confirmPassword" name="confirmPassword" required>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" [disabled]="loading">
+                  @if (loading) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  }
+                  Mettre à jour
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordSection()">
+                  Annuler
+                </button>
+              </div>
+            </form>
+          } @else {
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              <span class="text-muted">Dernière modification du mot de passe : 30 jours</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="card shadow-sm border-0 border-danger">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+          <h5 class="fw-bold text-danger mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>Zone de danger
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-muted mb-3">
+            Une fois votre compte supprimé, toutes vos données seront effacées. Cette action est irréversible.
+          </p>
+          <button class="btn btn-outline-danger" (click)="deleteAccount()">
+            <i class="bi bi-trash me-2"></i>Supprimer mon compte
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

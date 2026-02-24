@@ -1,0 +1,11 @@
+{
+  "/api/muse": {
+    "target": "https://www.themuse.com/api/public",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/muse": ""
+    },
+    "logLevel": "debug"
+  }
+}
