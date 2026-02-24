@@ -15,10 +15,10 @@ export const routes: Routes = [
     path: 'jobs',
     loadComponent: () => import('./features/jobs/job-list/job-list.component').then(m => m.JobListComponent)
   },
-  {
+  /*{
     path: 'jobs/:id',
     loadComponent: () => import('./features/jobs/job-details/job-details.component').then(m => m.JobDetailsComponent)
-  },
+  },*/
   {
     path: 'favorites',
     loadComponent: () => import('./features/favorites/favorites-list/favorites-list.component').then(m => m.FavoritesListComponent),
