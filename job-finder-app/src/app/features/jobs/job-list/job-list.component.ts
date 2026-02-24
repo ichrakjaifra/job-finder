@@ -40,7 +40,7 @@ export class JobListComponent implements OnInit {
   totalJobs = 0;
   isAuthenticated = false;
   favorites$: Observable<Favorite[]>;
-  searchTerms = new Subject<JobFilters>();
+  searchTerms = new Subject<{ filters: JobFilters; page: number }>();
 
   jobTypes = ['Full-time', 'Part-time', 'Contract', 'Temporary', 'Internship'];
   experienceLevels = ['Entry', 'Mid', 'Senior', 'Executive'];
@@ -67,7 +67,7 @@ export class JobListComponent implements OnInit {
       distinctUntilChanged((prev, curr) =>
         JSON.stringify(prev) === JSON.stringify(curr)
       ),
-      switchMap(filters => this.jobService.searchJobs(filters, this.currentPage))
+      switchMap(({ filters, page }) => this.jobService.searchJobs(filters, page))
     ).subscribe({
       next: (response) => {
         this.jobs = response.jobs;
@@ -91,14 +91,14 @@ export class JobListComponent implements OnInit {
   onSearch(): void {
     this.currentPage = 1;
     this.loading = true;
-    this.searchTerms.next({ ...this.filters });
+    this.searchTerms.next({ filters: { ...this.filters }, page: this.currentPage });
   }
 
   onPageChange(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
     this.loading = true;
-    this.searchTerms.next({ ...this.filters });
+    this.searchTerms.next({ filters: { ...this.filters }, page: this.currentPage });
   }
 
   getPageNumbers(): number[] {

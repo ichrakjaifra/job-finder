@@ -40,37 +40,36 @@
           <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             @for (favorite of favorites$ | async; track favorite.id) {
               <div class="col">
-                <div class="card h-100 shadow-sm border-0">
+                <div class="card h-100 shadow-sm border-0 job-card">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                       <div>
-                        <h5 class="card-title mb-1 fw-bold text-primary">
+                        <h5 class="card-title mb-1 fw-bold text-success">
                           {{ favorite.title }}
                         </h5>
                         <h6 class="card-subtitle mb-2 text-muted">
                           <i class="bi bi-building me-1"></i> {{ favorite.company }}
                         </h6>
                       </div>
-                      <button class="btn btn-sm btn-outline-danger"
-                              (click)="removeFavorite(favorite.id!)"
+                      <button class="btn btn-sm btn-outline-danger border-0" (click)="removeFavorite(favorite.id!)"
                               title="Retirer des favoris">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>
 
                     <div class="mb-3">
-                      <span class="badge bg-light text-dark me-2 mb-2">
-                        <i class="bi bi-geo-alt me-1"></i> {{ favorite.location }}
-                      </span>
+                <span class="badge bg-light text-dark me-2 mb-2">
+                  <i class="bi bi-geo-alt me-1"></i> {{ favorite.location }}
+                </span>
                       @if (favorite.type) {
                         <span class="badge bg-light text-dark me-2 mb-2">
-                          <i class="bi bi-clock me-1"></i> {{ favorite.type }}
-                        </span>
+                  <i class="bi bi-clock me-1"></i> {{ favorite.type }}
+                </span>
                       }
                       @if (favorite.salary) {
                         <span class="badge bg-light text-dark me-2 mb-2">
-                          <i class="bi bi-cash me-1"></i> {{ favorite.salary }}
-                        </span>
+                  <i class="bi bi-cash me-1"></i> {{ favorite.salary }}
+                </span>
                       }
                     </div>
 
@@ -81,10 +80,7 @@
                       </small>
 
                       <div class="d-flex gap-2">
-                        <a [href]="favorite.url"
-                           target="_blank"
-                           class="btn btn-sm btn-primary"
-                           title="Voir l'offre">
+                        <a [href]="favorite.url" target="_blank" class="btn btn-sm btn-success" title="Voir l'offre">
                           <i class="bi bi-eye me-1"></i> Voir
                         </a>
                       </div>
